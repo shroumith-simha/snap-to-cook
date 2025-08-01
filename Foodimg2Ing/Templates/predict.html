@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="animate-fade-in">
+    <!-- Back Button -->
+    <div class="mb-8">
+        <a href="/" class="inline-flex items-center text-primary hover:text-secondary transition-colors">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Upload
+        </a>
+    </div>
+
+    <!-- Recipe Card -->
+    <div class="glass-card rounded-2xl overflow-hidden shadow-xl">
+        <div class="grid md:grid-cols-2 gap-8 p-8">
+            <!-- Image Section -->
+            <div class="space-y-6">
+                <div class="rounded-xl overflow-hidden shadow-lg">
+                    <img src="{{ url_for('static', filename=img) }}" 
+                         alt="{{ title[0] if title is sequence else title }}" 
+                         class="w-full h-64 md:h-96 object-cover">
+                </div>
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-800">{{ title[0] if title is sequence else title }}</h1>
+            </div>
+
+            <!-- Recipe Details -->
+            <div class="space-y-8">
+                <!-- Ingredients Section -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-semibold text-gray-800 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        Ingredients
+                    </h2>
+                    <ul class="space-y-2">
+                        {% if ingredients is sequence %}
+                            {% for ingredient in ingredients[0] %}
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-primary"></span>
+                                <span class="ml-3 text-gray-600">{{ ingredient.strip('[]\'\"') }}</span>
+                            </li>
+                            {% endfor %}
+                        {% else %}
+                            {% for ingredient in ingredients.split(',') %}
+                            <li class="flex items-start">
+                                <span class="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-primary"></span>
+                                <span class="ml-3 text-gray-600">{{ ingredient.strip('[]\'\"') }}</span>
+                            </li>
+                            {% endfor %}
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Steps Section -->
+                <div class="space-y-4">
+                    <h2 class="text-2xl font-semibold text-gray-800 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                        </svg>
+                        Instructions
+                    </h2>
+                    <ol class="space-y-4">
+                        {% if recipe is sequence %}
+                            {% for step in recipe[0] %}
+                            <li class="flex items-start animate-slide-up" style="animation-delay: {{ loop.index * 100 }}ms">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-center font-semibold">
+                                    {{ loop.index }}
+                                </span>
+                                <span class="ml-4 text-gray-600">{{ step.strip('[]\'\"') }}</span>
+                            </li>
+                            {% endfor %}
+                        {% else %}
+                            {% for step in recipe.split(',') %}
+                            <li class="flex items-start animate-slide-up" style="animation-delay: {{ loop.index * 100 }}ms">
+                                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-r from-primary to-secondary text-white flex items-center justify-center font-semibold">
+                                    {{ loop.index }}
+                                </span>
+                                <span class="ml-4 text-gray-600">{{ step.strip('[]\'\"') }}</span>
+                            </li>
+                            {% endfor %}
+                        {% endif %}
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Section -->
+    <div class="mt-8 text-center">
+        <button onclick="shareRecipe()" 
+                class="px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-0.5">
+            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+            </svg>
+            Share Recipe
+        </button>
+    </div>
+</div>
+
+<script>
+    function shareRecipe() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ title[0] if title is sequence else title }} Recipe',
+                text: 'Check out this amazing recipe for {{ title[0] if title is sequence else title }}!',
+                url: window.location.href
+            })
+            .catch(console.error);
+        } else {
+            // Fallback for browsers that don't support the Web Share API
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = window.location.href;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+            alert('Recipe link copied to clipboard!');
+        }
+    }
+</script>
+{% endblock %}
